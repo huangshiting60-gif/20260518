@@ -347,6 +347,17 @@ function drawIntroScreen() {
   textSize(80);
   text("賽博猜拳", gameW / 2, titleY);
 
+  // --- 新增：學號姓名 ---
+  push();
+  applyGlow('#ffea00', 10); // 使用黃色光暈
+  fill('#ffea00');
+  noStroke();
+  textSize(20);
+  textAlign(RIGHT, TOP); // 對齊右上角
+  text("414730175 黃詩婷", gameW - 25, 25); // 放在遊戲畫面的右上角
+  pop();
+  // --- ---
+
   applyGlow('transparent', 0);
   noStroke();
 
