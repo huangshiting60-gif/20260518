@@ -12,7 +12,7 @@ let confettis = [];
 const NUM_CONFETTI = 150; // 彩帶數量
 let tears = [];
 const NUM_TEARS = 100; // 眼淚/雨滴數量
-let gameState = "INTRO"; // INTRO, START, PLAYING, RESULT, CHAMPION, GAMEOVER
+let gameState = "LOADING"; // LOADING, INTRO, START, PLAYING, RESULT, CHAMPION, GAMEOVER
 let transitionState = 'none'; // 'none', 'out', 'in'
 let transitionAlpha = 0;
 let nextGameState = '';
@@ -43,8 +43,6 @@ let connections = [
 ];
 
 function preload() {
-  // 載入 ml5.js handPose 模型
-  handPose = ml5.handPose();
   backgroundImage = loadImage('back.png');
   introBackgroundImage = loadImage('back1.png');
   winBackgroundImage = loadImage('win.png');
@@ -59,9 +57,13 @@ function setup() {
   capture = createCapture(VIDEO);
   capture.hide();
   
-  // 開始偵測手部並將結果存入 hands 變數
-  handPose.detectStart(capture, results => {
-    hands = results;
+  // 在 setup 中非同步載入 ml5.js 模型，避免畫面卡在無聊的 p5_loading
+  handPose = ml5.handPose(() => {
+    // 模型載入完成後切換到介紹狀態，並開始偵測手勢
+    gameState = "INTRO";
+    handPose.detectStart(capture, results => {
+      hands = results;
+    });
   });
 
   createParticles();
@@ -123,6 +125,22 @@ function startTransition(targetState) {
 
 function draw() {
   background(0); // 加上黑色背景底色，避免半透明產生殘影
+
+  // 若處於載入狀態，顯示自訂載入畫面並提早結束 draw
+  if (gameState === "LOADING") {
+    push();
+    applyGlow('#00f3ff', 20);
+    fill('#00f3ff');
+    noStroke();
+    textFont('sans-serif');
+    textStyle(BOLD);
+    textAlign(CENTER, CENTER);
+    textSize(32);
+    text("🧠 載入 AI 猜拳模型與素材中，請稍候...", width / 2, height / 2);
+    pop();
+    return;
+  }
+
   imageMode(CORNER);
 
   // 永遠在最底層繪製機台背景 (back.png)，這樣首頁跟冠軍畫面才不會失去機台外框
