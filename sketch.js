@@ -350,20 +350,58 @@ function drawIntroScreen() {
   applyGlow('transparent', 0);
   noStroke();
 
+  // === 新增：在首頁加入鏡頭預覽畫面 ===
+  if (capture.width > 0) {
+    let previewW = 240; // 你也可以把寬度稍微調大一點，例如 240
+    // 修改這裡：將比例強制改為常見的 16:9 寬螢幕比例 (9 / 16)
+    let previewH = previewW * (9 / 16); 
+    let previewX = gameW / 2;
+    let previewY = gameH * 0.28; // 放在標題和規則說明的正中間
+
+    push();
+    // 外框與發光
+    applyGlow('#00f3ff', 15);
+    fill(20, 20, 35, 220);
+    stroke('#00f3ff');
+    strokeWeight(3);
+    rectMode(CENTER);
+    rect(previewX, previewY, previewW + 10, previewH + 10, 10);
+    
+    applyGlow('transparent', 0);
+    
+    // 攝影機畫面與骨架
+    push();
+    translate(previewX, previewY);
+    scale(-1, 1); // 左右顛倒 (鏡像)
+    imageMode(CENTER);
+    image(capture, 0, 0, previewW, previewH);
+    drawSkeleton(previewW, previewH);
+    pop();
+    
+    // 顯示當前手勢狀態文字
+    applyGlow('#00f3ff', 10);
+    fill('#00f3ff');
+    noStroke();
+    textSize(18);
+    text("鏡頭預覽 - 當前手勢：" + playerGesture, previewX, previewY - previewH / 2 - 20);
+    pop();
+  }
+  // ===================================
+
   // --- 為下方文字加上半透明深色背景，增加可讀性 ---
   fill(0, 0, 0, 160);
   rectMode(CENTER);
-  rect(gameW / 2, gameH * 0.53, gameW * 0.9, 160, 20);
+  rect(gameW / 2, gameH * 0.60, gameW * 0.9, 150, 20); // 整體稍微往下移，留空間給預覽窗
   
   fill(255);
   textSize(24);
-  text("請將手掌對準鏡頭，準備開始遊戲", gameW / 2, gameH * 0.45); 
+  text("請將手掌對準鏡頭，準備開始遊戲", gameW / 2, gameH * 0.53); 
 
   // 新增遊戲規則說明 (閃爍動畫)
   // 將閃爍動畫改為固定的顏色
   fill('#ffea00'); // 固定為霓虹黃色
   textSize(20);
-  text("【 遊戲規則 】\n👉 比出「✌️ 剪刀」或「🖐️ 布」選擇賽制 (先達標者獲勝) 👈\n👉 結算與暫停時，皆可比出「👍 讚」繼續或「👎 倒讚」結束 👈", gameW / 2, gameH * 0.58);
+  text("【 遊戲規則 】\n👉 比出「✌️ 剪刀」或「🖐️ 布」選擇賽制 (先達標者獲勝) 👈\n👉 結算與暫停時，皆可比出「👍 讚」繼續或「👎 倒讚」結束 👈", gameW / 2, gameH * 0.64);
 
   let scissorsProgress = (playerGesture === "剪刀") ? gestureTimer / GESTURE_HOLD_THRESH : 0;
   let paperProgress = (playerGesture === "布") ? gestureTimer / GESTURE_HOLD_THRESH : 0;
